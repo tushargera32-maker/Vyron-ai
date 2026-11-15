@@ -218,15 +218,17 @@ export function ChatClient() {
 
         <div className="flex min-h-0 min-w-0 flex-col bg-transparent">
           {/* Header */}
-          <div className="border-b border-[#292932] px-3 py-2.5 md:px-4">
+          <div className="border-b border-[#292932] px-3 py-2 md:px-4 md:py-2.5">
             <div className="flex flex-wrap items-center gap-2">
-              <button onClick={() => setShowHistory(true)} className="inline-flex h-9 items-center gap-1.5 rounded-md border border-[#292932] px-2.5 text-xs text-[#AAA7B5] hover:bg-white/5 lg:hidden"><Search className="h-3.5 w-3.5" />History</button>
-              <input className="h-9 min-w-[180px] flex-1 rounded-md border border-[#292932] bg-[#111116] px-3 text-[13px] text-[#F5F3FA] outline-none placeholder:text-[#777582] focus:border-[#9565F5]/40" placeholder="Conversation title" value={renameValue} onChange={e => setRenameValue(e.target.value)} />
-              <button onClick={renameChat} disabled={!activeId} className="inline-flex h-9 items-center gap-1.5 rounded-md border border-[#292932] bg-[#18181F] px-3 text-xs text-[#F5F3FA] hover:bg-[#222229] disabled:opacity-40"><Pencil className="h-3.5 w-3.5" />Save</button>
-              <button onClick={retryLast} disabled={!activeId || streaming} className="inline-flex h-9 items-center gap-1.5 rounded-md border border-[#292932] px-3 text-xs text-[#AAA7B5] hover:bg-white/5 hover:text-[#F5F3FA] disabled:opacity-40"><RefreshCw className="h-3.5 w-3.5" />Retry</button>
-              <button onClick={() => setShowAdvanced(v => !v)} className={cn("inline-flex h-9 items-center gap-1.5 rounded-md border px-3 text-xs", showAdvanced ? "border-[#9565F5]/40 bg-[#9565F5]/10 text-[#F5F3FA]" : "border-[#292932] text-[#AAA7B5] hover:bg-white/5 hover:text-[#F5F3FA]")}>
-                <SlidersHorizontal className="h-3.5 w-3.5" />Advanced <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", showAdvanced && "rotate-180")} />
-              </button>
+              <button onClick={() => setShowHistory(true)} className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-md border border-[#292932] px-2.5 text-xs text-[#AAA7B5] hover:bg-white/5 lg:hidden"><Search className="h-3.5 w-3.5" />History</button>
+              <input className="h-9 min-w-0 flex-1 basis-[140px] rounded-md border border-[#292932] bg-[#111116] px-3 text-[13px] text-[#F5F3FA] outline-none placeholder:text-[#777582] focus:border-[#9565F5]/40 sm:min-w-[180px]" placeholder="Conversation title" value={renameValue} onChange={e => setRenameValue(e.target.value)} />
+              <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:flex-nowrap">
+                <button onClick={renameChat} disabled={!activeId} className="inline-flex h-9 items-center gap-1.5 rounded-md border border-[#292932] bg-[#18181F] px-3 text-xs text-[#F5F3FA] hover:bg-[#222229] disabled:opacity-40"><Pencil className="h-3.5 w-3.5" />Save</button>
+                <button onClick={retryLast} disabled={!activeId || streaming} className="inline-flex h-9 items-center gap-1.5 rounded-md border border-[#292932] px-3 text-xs text-[#AAA7B5] hover:bg-white/5 hover:text-[#F5F3FA] disabled:opacity-40"><RefreshCw className="h-3.5 w-3.5" />Retry</button>
+                <button onClick={() => setShowAdvanced(v => !v)} className={cn("inline-flex h-9 items-center gap-1.5 rounded-md border px-3 text-xs", showAdvanced ? "border-[#9565F5]/40 bg-[#9565F5]/10 text-[#F5F3FA]" : "border-[#292932] text-[#AAA7B5] hover:bg-white/5 hover:text-[#F5F3FA]")}>
+                  <SlidersHorizontal className="h-3.5 w-3.5" />Advanced <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", showAdvanced && "rotate-180")} />
+                </button>
+              </div>
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-[#777582]">
               <span>Model: <span className="text-[#AAA7B5]">{model}</span></span>
@@ -257,7 +259,7 @@ export function ChatClient() {
           </div>
 
           {/* Messages */}
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 md:px-6">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3 sm:py-4 md:px-6">
             {!messages.length && (
               <div className="flex h-full min-h-[360px] flex-col items-center justify-center text-center">
                 <div className="md:hidden"><VyronCore state={coreState} size={150} /></div>
@@ -292,10 +294,10 @@ export function ChatClient() {
           </div>
 
           {/* Composer */}
-          <div className="border-t border-[#292932] px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:px-6">
+          <div className="border-t border-[#292932] px-3 py-2.5 md:px-6 md:py-3">
             <div className="mx-auto max-w-[820px]">
-              <div className={cn("rounded-[16px] border bg-[#111116] p-2 transition-colors", composerFocus ? "border-[#9565F5]/40" : "border-[#292932]")}>
-                <div className="flex items-end gap-2">
+              <div className={cn("rounded-[16px] border bg-[#111116] p-1.5 sm:p-2 transition-colors", composerFocus ? "border-[#9565F5]/40" : "border-[#292932]")}>
+                <div className="flex items-end gap-1.5 sm:gap-2">
                   <textarea
                     className="max-h-40 min-h-[44px] flex-1 resize-y rounded-md bg-transparent px-2 py-2 text-[14px] text-[#F5F3FA] outline-none placeholder:text-[#777582]"
                     value={input}

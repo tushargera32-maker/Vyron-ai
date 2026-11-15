@@ -215,7 +215,7 @@ export function HomeCommandCentre({ data }: { data: HomeDashboardData }) {
           <Link href="/profile" className="flex h-7 w-7 items-center justify-center rounded-full border border-[#292932] bg-[#18181F] text-[11px] text-[#F5F3FA]">{data.profile.name.slice(0, 1).toUpperCase()}</Link>
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto pb-[calc(1rem+env(safe-area-inset-bottom))]">
+      <div className="flex-1 overflow-y-auto">
         <div className="px-4 pt-4">
           <div className="text-[13px] text-[#AAA7B5]">Hi, {data.profile.name}</div>
         </div>
@@ -244,7 +244,7 @@ export function HomeCommandCentre({ data }: { data: HomeDashboardData }) {
         <div className="mt-5 px-4 pb-4">
           <Composer compact />
         </div>
-        <div className="space-y-2.5 px-4 pb-8">
+        <div className="space-y-2.5 px-4 pb-6">
           <div className="text-[13px] font-medium text-[#F5F3FA]">Intelligence overview</div>
           <PanelSection title="System Status" subtitle="Local-first runtime" defaultOpen={false}>
             <StatRow label="Interface" value="Ready" tone="good" />
