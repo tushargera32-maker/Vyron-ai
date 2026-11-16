@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
-    const schema = z.object({ title: z.string().optional(), project_id: z.string().nullable().optional(), model_provider: z.enum(["mock", "openai-compatible"]).nullable().optional(), model_id: z.string().nullable().optional(), system_prompt: z.string().nullable().optional() });
+    const schema = z.object({ title: z.string().optional(), project_id: z.string().nullable().optional(), model_provider: z.literal("openai-compatible").nullable().optional(), model_id: z.string().nullable().optional(), system_prompt: z.string().nullable().optional() });
     const input = schema.parse(body);
     const conv = createNewConversation(input as any);
     return NextResponse.json({ conversation: conv }, { status: 201 });

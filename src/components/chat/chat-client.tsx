@@ -18,7 +18,6 @@ export function ChatClient() {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [providerType, setProviderType] = useState<"mock" | "openai-compatible">("openai-compatible");
   const [model, setModel] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("You are VYRON, a refined local-first personal AI operating intelligence.");
   const [providerConfig, setProviderConfig] = useState<any>(null);
@@ -48,7 +47,6 @@ export function ChatClient() {
     if (res.ok) {
       setMessages(data.messages || []);
       setRenameValue(data.conversation?.title || "");
-      if (data.conversation?.model_provider) setProviderType(data.conversation.model_provider);
       if (data.conversation?.model_id) setModel(data.conversation.model_id);
       if (data.conversation?.system_prompt) setSystemPrompt(data.conversation.system_prompt);
     }
@@ -60,11 +58,8 @@ export function ChatClient() {
       if (res.ok) {
         const cfg = data.config || null;
         setProviderConfig(cfg);
-        if (cfg) {
-          // Prefer configured provider/model by default for a clean, ready-to-chat experience
-          if (cfg.type === "mock" || cfg.type === "openai-compatible") setProviderType(cfg.type);
-          if (typeof cfg.defaultModel === "string" && cfg.defaultModel.trim()) setModel(cfg.defaultModel.trim());
-          else if (cfg.type === "mock") setModel("mock-model");
+        if (cfg && typeof cfg.defaultModel === "string" && cfg.defaultModel.trim()) {
+          setModel((prev) => prev.trim() ? prev : cfg.defaultModel.trim());
         }
       }
     } catch {}
@@ -89,7 +84,7 @@ export function ChatClient() {
   }, [searchParams]);
 
   async function newChat() {
-    const res = await fetch("/api/conversations", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: "New conversation", model_provider: providerType, model_id: model, system_prompt: systemPrompt }) });
+    const res = await fetch("/api/conversations", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: "New conversation", model_provider: "openai-compatible", model_id: model || undefined, system_prompt: systemPrompt }) });
     const data = await res.json();
     if (res.ok) { await loadConversations(query); setActiveId(data.conversation.id); }
   }
@@ -100,7 +95,7 @@ export function ChatClient() {
   }
   async function renameChat() {
     if (!activeId) return;
-    await fetch(`/api/conversations/${encodeURIComponent(activeId)}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: renameValue || "Untitled", model_provider: providerType, model_id: model, system_prompt: systemPrompt }) });
+    await fetch(`/api/conversations/${encodeURIComponent(activeId)}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: renameValue || "Untitled", model_provider: "openai-compatible", model_id: model || null, system_prompt: systemPrompt }) });
     await loadConversations(query);
   }
 
@@ -116,7 +111,7 @@ export function ChatClient() {
     const ctrl = new AbortController();
     abortRef.current = ctrl;
     try {
-      const res = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ conversationId: activeId ?? undefined, message: text, providerType, model, systemPrompt, stream: true }), signal: ctrl.signal });
+      const res = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ conversationId: activeId ?? undefined, message: text, providerType: "openai-compatible", model: model || undefined, systemPrompt, stream: true }), signal: ctrl.signal });
       if (!res.ok || !res.body) throw new Error(await res.text());
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
@@ -231,22 +226,19 @@ export function ChatClient() {
               </div>
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-[#777582]">
-              <span>Model: <span className="text-[#AAA7B5]">{model}</span></span>
-              <span>Provider: <span className="text-[#AAA7B5]">{providerType}</span></span>
-              {providerConfig && <span className="truncate">Env: <span className="text-[#AAA7B5]">{providerConfig.type} · {providerConfig.model}{providerConfig.baseURL ? ` · ${providerConfig.baseURL}` : ""}</span></span>}
+              <span>Model: <span className="text-[#AAA7B5]">{model || providerConfig?.defaultModel || "—"}</span></span>
+              <span>Provider: <span className="text-[#AAA7B5]">OpenRouter</span></span>
+              {providerConfig && <span className="truncate">API: <span className="text-[#AAA7B5]">{providerConfig.baseURL || "https://openrouter.ai/api/v1"}{providerConfig.hasApiKey ? " · key set" : " · key missing"}</span></span>}
             </div>
             <AnimatePresence initial={false}>
               {showAdvanced && (
                 <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                   <div className="mt-3 grid gap-2 border-t border-[#292932] pt-3 sm:grid-cols-2">
                     <label className="space-y-1 text-[12px] text-[#777582]"><span>Provider</span>
-                      <select className="h-9 w-full rounded-md border border-[#292932] bg-[#111116] px-2 text-[13px] text-[#F5F3FA] outline-none" value={providerType} onChange={e => setProviderType(e.target.value as any)}>
-                        <option value="mock">mock (offline)</option>
-                        <option value="openai-compatible">openai-compatible</option>
-                      </select>
+                      <div className="flex h-9 w-full items-center rounded-md border border-[#292932] bg-[#111116] px-3 text-[13px] text-[#F5F3FA]">OpenRouter (API)</div>
                     </label>
                     <label className="space-y-1 text-[12px] text-[#777582]"><span>Model ID</span>
-                      <input className="h-9 w-full rounded-md border border-[#292932] bg-[#111116] px-3 text-[13px] text-[#F5F3FA] outline-none" value={model} onChange={e => setModel(e.target.value)} placeholder="Model ID" />
+                      <input className="h-9 w-full rounded-md border border-[#292932] bg-[#111116] px-3 text-[13px] text-[#F5F3FA] outline-none" value={model} onChange={e => setModel(e.target.value)} placeholder={providerConfig?.defaultModel || "e.g. openrouter/free or openai/gpt-4o-mini"} />
                     </label>
                     <label className="space-y-1 text-[12px] text-[#777582] sm:col-span-2"><span>System prompt</span>
                       <textarea className="min-h-[72px] w-full rounded-md border border-[#292932] bg-[#111116] px-3 py-2 text-[13px] text-[#F5F3FA] outline-none" value={systemPrompt} onChange={e => setSystemPrompt(e.target.value)} placeholder="System prompt / behavior" />

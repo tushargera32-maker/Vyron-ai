@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
       message: z.string().min(1),
       projectId: z.string().nullable().optional(),
       model: z.string().optional(),
-      providerType: z.enum(["mock", "openai-compatible"]).optional(),
+      providerType: z.literal("openai-compatible").optional(),
       systemPrompt: z.string().nullable().optional(),
       stream: z.boolean().optional().default(true),
     });

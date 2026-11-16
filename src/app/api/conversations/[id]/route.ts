@@ -17,7 +17,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
   try {
     const { id } = await ctx.params;
     const body = await req.json();
-    const schema = z.object({ title: z.string().min(1).optional(), model_provider: z.enum(["mock", "openai-compatible"]).nullable().optional(), model_id: z.string().nullable().optional(), system_prompt: z.string().nullable().optional() });
+    const schema = z.object({ title: z.string().min(1).optional(), model_provider: z.literal("openai-compatible").nullable().optional(), model_id: z.string().nullable().optional(), system_prompt: z.string().nullable().optional() });
     const input = schema.parse(body);
     let updated = null;
     if (input.title) updated = renameConversation(id, input.title);

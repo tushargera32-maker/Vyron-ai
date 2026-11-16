@@ -6,19 +6,21 @@ import { getProviderConfigFromEnv } from "@/lib/ai/config";
 
 async function SettingsContent() {
   await connection();
-  const cfg = getProviderConfigFromEnv();
-  const supportsStreaming = cfg.type === "openai-compatible" || cfg.type === "mock";
+  let cfg: ReturnType<typeof getProviderConfigFromEnv> | null = null;
+  let cfgError: string | null = null;
+  try { cfg = getProviderConfigFromEnv(); } catch (e: any) { cfgError = e?.message || "Invalid provider configuration"; }
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <Card className="border-white/10 bg-black/30 backdrop-blur-xl">
-        <CardHeader><CardTitle className="text-base">AI Provider (server-side)</CardTitle><CardDescription>Configured via environment variables. API keys are never exposed to the browser.</CardDescription></CardHeader>
+        <CardHeader><CardTitle className="text-base">AI Provider (server-side)</CardTitle><CardDescription>OpenRouter API only (mock/offline removed). Configured via environment variables; API keys are never exposed to the browser.</CardDescription></CardHeader>
         <CardContent className="space-y-2 text-sm">
-          {[
-            ["Provider", `${cfg.type} (${cfg.id})`],
-            ["Default model", cfg.defaultModel || "(none)"],
-            ["Base URL", cfg.baseURL || "(default/none)"],
+          {cfgError && <div className="rounded-md border border-[#F16C78]/30 bg-[#F16C78]/10 px-3 py-2 text-[13px] text-[#f7a1aa]">{cfgError}</div>}
+          {cfg && [
+            ["Provider", `OpenRouter (${cfg.id})`],
+            ["Default model", cfg.defaultModel || "(not set)"],
+            ["Base URL", cfg.baseURL || "https://openrouter.ai/api/v1"],
             ["API key configured", cfg.apiKey ? "yes" : "no"],
-            ["Streaming", supportsStreaming ? "supported" : "not supported"],
+            ["Streaming", "supported"],
             ["Timeout / Retries", `${cfg.timeoutMs}ms / ${cfg.maxRetries}`],
           ].map(([k,v]) => (
             <div key={String(k)} className="flex items-center justify-between gap-4 rounded-md border border-white/10 bg-white/5 px-3 py-2">

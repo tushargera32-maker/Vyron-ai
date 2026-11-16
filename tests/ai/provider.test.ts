@@ -1,32 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { createMockProvider } from "@/lib/ai/providers/mock";
 import { createOpenAICompatibleProvider } from "@/lib/ai/providers/openai-compatible";
 import { chatWithRetry, streamWithRetry } from "@/lib/ai/runtime";
 import { AIProviderError } from "@/lib/ai/errors";
 
 const baseReq = { model: "gpt-test", messages: [{ role: "user" as const, content: "hello" }] };
-
-describe("mock provider", () => {
-  it("returns non-streaming response", async () => {
-    const p = createMockProvider("mock");
-    const res = await p.chat(baseReq);
-    expect(res.provider).toBe("mock");
-    expect(res.content).toContain("hello");
-    expect(res.usage.output).toBeGreaterThan(0);
-  });
-
-  it("streams deltas and done", async () => {
-    const p = createMockProvider("mock");
-    const chunks: string[] = [];
-    let done = 0;
-    for await (const d of p.stream(baseReq)) {
-      if (d.type === "delta" && d.content) chunks.push(d.content);
-      if (d.type === "done") done++;
-    }
-    expect(chunks.join("")).toContain("hello");
-    expect(done).toBe(1);
-  });
-});
 
 describe("openai-compatible provider (mocked fetch)", () => {
   const originalFetch = global.fetch;

@@ -54,7 +54,7 @@ export interface ProviderErrorShape {
 
 export interface ProviderConfig {
   id: string;
-  type: "openai-compatible" | "mock";
+  type: "openai-compatible";
   baseURL?: string;
   apiKey?: string;
   defaultModel?: string;

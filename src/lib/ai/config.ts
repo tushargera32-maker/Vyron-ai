@@ -4,7 +4,7 @@ import type { ProviderConfig } from "./types";
 
 const providerConfigSchema = z.object({
   id: z.string().min(1),
-  type: z.enum(["openai-compatible", "mock"]),
+  type: z.literal("openai-compatible"),
   baseURL: z.string().url().optional(),
   apiKey: z.string().min(1).optional(),
   defaultModel: z.string().min(1).optional(),
@@ -40,13 +40,13 @@ export function parseProviderConfig(input: unknown): ProviderConfig {
 }
 
 export function getProviderConfigFromEnv(overrides?: Partial<ProviderConfig>): ProviderConfig {
-  const type = (overrides?.type || process.env.AETHER_AI_PROVIDER || "mock") as ProviderConfig["type"];
+  // OpenRouter (OpenAI-compatible API) only. AETHER_AI_* env names preserved.
   const cfg: ProviderConfig = {
-    id: overrides?.id || process.env.AETHER_AI_PROVIDER_ID || (type === "mock" ? "mock" : "openai-compatible"),
-    type,
-    baseURL: overrides?.baseURL || process.env.AETHER_AI_BASE_URL || undefined,
+    id: overrides?.id || process.env.AETHER_AI_PROVIDER_ID || "openrouter",
+    type: "openai-compatible",
+    baseURL: overrides?.baseURL || process.env.AETHER_AI_BASE_URL || "https://openrouter.ai/api/v1",
     apiKey: overrides?.apiKey || process.env.AETHER_AI_API_KEY || undefined,
-    defaultModel: overrides?.defaultModel || process.env.AETHER_AI_MODEL || (type === "mock" ? "mock-model" : undefined),
+    defaultModel: overrides?.defaultModel || process.env.AETHER_AI_MODEL || undefined,
     timeoutMs: overrides?.timeoutMs ?? (process.env.AETHER_AI_TIMEOUT_MS ? Number(process.env.AETHER_AI_TIMEOUT_MS) : 30000),
     maxRetries: overrides?.maxRetries ?? (process.env.AETHER_AI_MAX_RETRIES ? Number(process.env.AETHER_AI_MAX_RETRIES) : 2),
     headers: overrides?.headers,

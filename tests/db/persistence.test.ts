@@ -103,7 +103,7 @@ describe("repositories (temp db)", () => {
       expect(agents.getAgent(db, "personal")?.name).toBe("Personal");
       const f = feedback.createFeedback(db, { target_type: "message", target_id: "m1", rating: 1, label: "positive" });
       expect(feedback.listFeedbackForTarget(db, "message", "m1")[0].id).toBe(f.id);
-      const u = usage.recordUsageEvent(db, { conversation_id: null, message_id: null, agent_run_id: null, provider_id: "mock", model_id: "m", token_input: 1, token_output: 2, latency_ms: 5, status: "success", error_json: null });
+      const u = usage.recordUsageEvent(db, { conversation_id: null, message_id: null, agent_run_id: null, provider_id: "openrouter", model_id: "m", token_input: 1, token_output: 2, latency_ms: 5, status: "success", error_json: null });
       expect(u.status).toBe("success");
       const al = usage.recordAuditLog(db, { actor: "user", action: "test.action", resource_type: "test" });
       expect(usage.listAuditLogs(db).some(x => x.id === al.id)).toBe(true);

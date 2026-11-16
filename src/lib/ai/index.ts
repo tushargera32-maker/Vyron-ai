@@ -4,5 +4,4 @@ export * from "./errors";
 export * from "./config";
 export * from "./provider";
 export * from "./runtime";
-export { createMockProvider } from "./providers/mock";
 export { createOpenAICompatibleProvider } from "./providers/openai-compatible";

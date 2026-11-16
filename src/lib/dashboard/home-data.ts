@@ -96,11 +96,9 @@ export async function getHomeDashboardData(): Promise<HomeDashboardData> {
     created_at: u.created_at,
   }));
 
-  // Provider config status (env-based, no secrets)
-  const providerId = process.env.AETHER_AI_PROVIDER || "mock";
-  const providerConfigured = providerId === "mock"
-    ? true
-    : Boolean(process.env.AETHER_AI_BASE_URL && process.env.AETHER_AI_API_KEY);
+  // Provider config status (env-based, no secrets). OpenRouter API only.
+  const providerId = "openrouter";
+  const providerConfigured = Boolean(process.env.AETHER_AI_API_KEY && (process.env.AETHER_AI_MODEL || "").trim());
 
   // Recent activity (real timestamps only)
   let conversations: Conversation[] = [];
@@ -149,7 +147,7 @@ export async function getHomeDashboardData(): Promise<HomeDashboardData> {
       interface: "ready",
       memoryKnowledge,
       provider: providerConfigured ? "configured" : "unconfigured",
-      providerName: providerId,
+      providerName: "OpenRouter",
     },
     memory: { total: memories.length, approved, proposed },
     knowledge: { indexed, processing, total: docs.length },
